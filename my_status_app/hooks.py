@@ -14,7 +14,11 @@ doc_events = {
     "Purchase Receipt": {
         "on_submit": "my_status_app.material_request_status.pr_update",
         "on_cancel": "my_status_app.material_request_status.pr_update",
+    },
+    "Material Request": {
+        "before_save": "my_status_app.material_request_status.clear_po_status_for_non_purchase"
     }
+
 }
 
 
