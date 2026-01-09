@@ -5,6 +5,21 @@ app_description = "no"
 app_email = "shiva@gmail.com"
 app_license = "mit"
 
+
+doc_events = {
+    "Purchase Order": {
+        "on_submit": "my_status_app.material_request_status.po_update",
+        "on_cancel": "my_status_app.material_request_status.po_update",
+    },
+    "Purchase Receipt": {
+        "on_submit": "my_status_app.material_request_status.pr_update",
+        "on_cancel": "my_status_app.material_request_status.pr_update",
+    }
+}
+
+
+
+
 # Apps
 # ------------------
 
