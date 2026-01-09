@@ -1,4 +1,3 @@
-# app details
 app_name = "my_status_app"
 app_title = "MK"
 app_publisher = "shiva"
@@ -6,9 +5,6 @@ app_description = "no"
 app_email = "shiva@gmail.com"
 app_license = "MIT"
 
-# -----------------------------
-# Document Event Hooks
-# -----------------------------
 doc_events = {
     "Purchase Order": {
         "on_submit": "my_status_app.material_request_status.po_update",
