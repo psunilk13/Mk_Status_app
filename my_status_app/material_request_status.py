@@ -7,6 +7,18 @@ def update_material_request_status(mr_name):
 
     mr = frappe.get_doc("Material Request", mr_name)
 
+    # ✅ SAME CONDITION AS DEPENDS ON (Python way)
+    if mr.material_request_type != "Purchase":
+        # Clear PO status for non-purchase MRs
+        if mr.custom_po_status:
+            frappe.db.set_value(
+                "Material Request",
+                mr.name,
+                "custom_po_status",
+                ""
+            )
+        return
+
     total_qty = 0
     ordered_qty = 0
     received_qty = 0
@@ -19,7 +31,6 @@ def update_material_request_status(mr_name):
     # 🔹 RECEIPT STATUS (highest priority)
     if received_qty > 0 and received_qty < total_qty:
         status = "Partially Received"
-
     elif received_qty >= total_qty and total_qty > 0:
         status = "Received"
 
@@ -40,7 +51,8 @@ def update_material_request_status(mr_name):
             "custom_po_status",
             status
         )
-        
+
+
 def po_update(doc, method):
     for item in doc.items:
         if item.material_request:
@@ -51,3 +63,7 @@ def pr_update(doc, method):
     for item in doc.items:
         if item.material_request:
             update_material_request_status(item.material_request)
+
+def clear_po_status_for_non_purchase(doc, method):
+    if doc.material_request_type != "Purchase":
+        doc.custom_po_status = ""
