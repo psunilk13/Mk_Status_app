@@ -1,69 +1,119 @@
 import frappe
 
-
+# -----------------------------
+# Update Material Request Status
+# -----------------------------
 def update_material_request_status(mr_name):
+    """
+    Updates the custom PO status of a Material Request based on item quantities.
+    """
     if not mr_name:
         return
 
     mr = frappe.get_doc("Material Request", mr_name)
 
-    # ✅ SAME CONDITION AS DEPENDS ON (Python way)
+    # Clear PO status for non-purchase MRs
     if mr.material_request_type != "Purchase":
-        # Clear PO status for non-purchase MRs
         if mr.custom_po_status:
-            frappe.db.set_value(
-                "Material Request",
-                mr.name,
-                "custom_po_status",
-                ""
-            )
+            frappe.db.set_value("Material Request", mr.name, "custom_po_status", "")
         return
 
-    total_qty = 0
-    ordered_qty = 0
-    received_qty = 0
+    total_qty = ordered_qty = received_qty = 0
 
     for row in mr.items:
         total_qty += row.qty or 0
         ordered_qty += row.ordered_qty or 0
         received_qty += row.received_qty or 0
 
-    # 🔹 RECEIPT STATUS (highest priority)
-    if received_qty > 0 and received_qty < total_qty:
-        status = "Partially Received"
-    elif received_qty >= total_qty and total_qty > 0:
+    # Determine status
+    if received_qty >= total_qty and total_qty > 0:
         status = "Received"
-
-    # 🔹 ORDER STATUS
+    elif received_qty > 0:
+        status = "Partially Received"
+    elif ordered_qty >= total_qty and total_qty > 0:
+        status = "Ordered"
+    elif ordered_qty > 0:
+        status = "Partially Ordered"
     else:
-        if ordered_qty == 0:
-            status = "Pending"
-        elif ordered_qty >= total_qty:
-            status = "Ordered"
-        else:
-            status = "Partially Ordered"
+        status = "Pending"
 
-    # Update only if changed
+    # Update MR if status changed
     if mr.custom_po_status != status:
-        frappe.db.set_value(
-            "Material Request",
-            mr.name,
-            "custom_po_status",
-            status
-        )
+        frappe.db.set_value("Material Request", mr.name, "custom_po_status", status)
+        # Sync status to linked indents
+        sync_po_status_to_indent(mr.name)
 
 
+# -----------------------------
+# Sync MR status to Indents
+# -----------------------------
+def sync_po_status_to_indent(mr_name):
+    """
+    Sync the custom PO status from Material Request to all linked Material Request Indent(s)
+    """
+    po_status = frappe.db.get_value("Material Request", mr_name, "custom_po_status") or ""
+
+    indents = frappe.get_all(
+        "Material Request Indent",
+        filters={"material_request": mr_name},
+        fields=["name", "po_status"]
+    )
+
+    for indent in indents:
+        if indent.po_status != po_status:
+            frappe.db.set_value("Material Request Indent", indent.name, "po_status", po_status)
+
+
+# -----------------------------
+# Sync Indent update to MR status
+# -----------------------------
+def sync_po_status_on_indent_update(doc, method):
+    """
+    Sync Material Request Indent's po_status to match parent MR's custom_po_status.
+    Trigger: on_update of Material Request Indent
+    """
+    if not doc.material_request:
+        return
+
+    po_status = frappe.db.get_value("Material Request", doc.material_request, "custom_po_status") or ""
+
+    if doc.po_status != po_status:
+        frappe.db.set_value("Material Request Indent", doc.name, "po_status", po_status)
+
+
+# -----------------------------
+# Trigger: Purchase Order Update
+# -----------------------------
 def po_update(doc, method):
+    """
+    Trigger: on_submit / on_cancel of Purchase Order
+    Updates all linked Material Requests.
+    """
     for item in doc.items:
         if item.material_request:
             update_material_request_status(item.material_request)
 
 
+# -----------------------------
+# Trigger: Purchase Receipt Update
+# -----------------------------
 def pr_update(doc, method):
+    """
+    Trigger: on_submit / on_cancel of Purchase Receipt
+    Updates all linked Material Requests.
+    """
     for item in doc.items:
         if item.material_request:
             update_material_request_status(item.material_request)
 
+
+# -----------------------------
+# Clear PO Status for Non-Purchase MR
+# -----------------------------
 def clear_po_status_for_non_purchase(doc, method):
-    if doc.material_request_type != "Purchase":
-        doc.custom_po_status = ""
+    """
+    Trigger: before_save of Material Request
+    Clears custom_po_status if MR is not of type Purchase.
+    """
+    if doc.material_request_type != "Purchase" and doc.custom_po_status:
+        frappe.db.set_value(doc.doctype, doc.name, "custom_po_status", "")
