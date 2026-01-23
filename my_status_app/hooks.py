@@ -15,13 +15,33 @@ doc_events = {
         "on_cancel": "my_status_app.material_request_status.pr_update"
     },
     "Material Request": {
-        "before_save": "my_status_app.material_request_status.clear_po_status_for_non_purchase",
-        "on_cancel": "my_status_app.material_request_status.pr_update"
+        "before_save": "my_status_app.material_request_status.clear_po_status_for_non_purchase"
     },
     "Material Request Indent": {
         "on_update": "my_status_app.material_request_status.sync_po_status_on_indent_update"
     }
 }
+
+
+
+
+# doc_events = {
+#     "Purchase Order": {
+#         "on_submit": "my_status_app.material_request_status.po_update",
+#         "on_cancel": "my_status_app.material_request_status.po_update"
+#     },
+#     "Purchase Receipt": {
+#         "on_submit": "my_status_app.material_request_status.pr_update",
+#         "on_cancel": "my_status_app.material_request_status.pr_update"
+#     },
+#     "Material Request": {
+#         "before_save": "my_status_app.material_request_status.clear_po_status_for_non_purchase",
+#         "on_cancel": "my_status_app.material_request_status.pr_update"
+#     },
+#     "Material Request Indent": {
+#         "on_update": "my_status_app.material_request_status.sync_po_status_on_indent_update"
+#     }
+# }
 
 
 
