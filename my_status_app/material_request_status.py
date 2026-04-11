@@ -1,4 +1,4 @@
-//--------------------------------WITHOUT STOPPING AND RE-OPENED FLOW------------------
+#--------------------------------WITHOUT STOPPING AND RE-OPENED FLOW------------------
 # import frappe
 
 # # -----------------------------
@@ -124,7 +124,7 @@
 #     if doc.material_request_type != "Purchase" and doc.custom_po_status:
 #         doc.custom_po_status = ""  # Use doc field instead of db.set_value
 
-//--------------------------------WITH STOPPING AND RE-OPENED FLOW------------------
+#--------------------------------WITH STOPPING AND RE-OPENED FLOW------------------
 import frappe
 
 # -----------------------------
