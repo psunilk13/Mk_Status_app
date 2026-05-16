@@ -1,0 +1,226 @@
+# Copyright (c) 2026, shiva and contributors
+# For license information, please see license.txt
+
+# import frappe
+
+import frappe
+
+def execute(filters=None):
+
+    columns = get_columns()
+    data = get_data(filters)
+
+    return columns, data
+
+
+def get_columns():
+
+    columns = [
+
+        {
+            "label": "SL.NO",
+            "fieldname": "sr_no",
+            "fieldtype": "Int",
+            "width": 70
+        },
+
+        {
+            "label": "Date",
+            "fieldname": "date",
+            "fieldtype": "Date",
+            "width": 100
+        },
+
+        {
+            "label": "Equipment",
+            "fieldname": "asset",
+            "fieldtype": "Data",
+            "width": 220
+        },
+
+        {
+            "label": "Engine Start",
+            "fieldname": "engine_start",
+            "fieldtype": "Float",
+            "width": 120
+        },
+
+        {
+            "label": "Engine End",
+            "fieldname": "engine_end",
+            "fieldtype": "Float",
+            "width": 120
+        },
+
+        {
+            "label": "Engine Hrs",
+            "fieldname": "engine_hours",
+            "fieldtype": "Float",
+            "width": 120
+        },
+
+        {
+            "label": "Pump Start",
+            "fieldname": "pump_start",
+            "fieldtype": "Float",
+            "width": 120
+        },
+
+        {
+            "label": "Pump End",
+            "fieldname": "pump_end",
+            "fieldtype": "Float",
+            "width": 120
+        },
+
+        {
+            "label": "Pump Hrs",
+            "fieldname": "pump_hours",
+            "fieldtype": "Float",
+            "width": 120
+        },
+
+        {
+            "label": "Concrete Qty",
+            "fieldname": "concrete_qty",
+            "fieldtype": "Float",
+            "width": 130
+        },
+
+        {
+            "label": "Fuel Qty",
+            "fieldname": "fuel_qty",
+            "fieldtype": "Float",
+            "width": 120
+        },
+
+        {
+            "label": "Fuel Avg/Hr",
+            "fieldname": "fuel_avg",
+            "fieldtype": "Float",
+            "width": 130
+        },
+
+        {
+            "label": "Remarks",
+            "fieldname": "remarks",
+            "fieldtype": "Data",
+            "width": 200
+        }
+    ]
+
+    return columns
+
+def get_data(filters):
+
+    filters = filters or {}
+
+    conditions = ""
+
+    if filters.get("asset"):
+        conditions += " AND mdl.asset = %(asset)s "
+
+    if filters.get("from_date"):
+        conditions += " AND mdl.date >= %(from_date)s "
+
+    if filters.get("to_date"):
+        conditions += " AND mdl.date <= %(to_date)s "
+
+    records = frappe.db.sql("""
+
+        SELECT
+            a.asset_name,
+            mdl.date,
+            mdl.engine_start,
+            mdl.engine_end,
+            mdl.engine_hours,
+            mdl.pump_start,
+            mdl.pump_end,
+            mdl.pump_hours,
+            mdl.concrete_qty,
+            mdl.fuel_qty,
+            mdl.remarks
+
+        FROM `tabMachine Daily Log` mdl
+
+        LEFT JOIN `tabAsset` a
+            ON a.name = mdl.asset
+
+        WHERE 1=1
+
+            {conditions}
+
+        ORDER BY
+            mdl.date ASC
+
+    """.format(conditions=conditions), filters, as_dict=True)
+
+    data = []
+
+    total_engine_hrs = 0
+    total_pump_hrs = 0
+    total_concrete = 0
+    total_fuel = 0
+
+    for i, row in enumerate(records, start=1):
+
+        fuel_avg = 0
+
+        if row.engine_hours and row.engine_hours > 0:
+            fuel_avg = row.fuel_qty / row.engine_hours
+
+        data.append({
+
+            "sr_no": i,
+
+            "date": row.date,
+
+            "asset": row.asset_name,
+
+            "engine_start": row.engine_start,
+
+            "engine_end": row.engine_end,
+
+            "engine_hours": row.engine_hours,
+
+            "pump_start": row.pump_start,
+
+            "pump_end": row.pump_end,
+
+            "pump_hours": row.pump_hours,
+
+            "concrete_qty": row.concrete_qty,
+
+            "fuel_qty": row.fuel_qty,
+
+            "fuel_avg": round(fuel_avg, 2),
+
+            "remarks": row.remarks
+        })
+
+        total_engine_hrs += row.engine_hours or 0
+        total_pump_hrs += row.pump_hours or 0
+        total_concrete += row.concrete_qty or 0
+        total_fuel += row.fuel_qty or 0
+
+    total_avg = 0
+
+    if total_engine_hrs > 0:
+        total_avg = total_fuel / total_engine_hrs
+
+    data.append({
+
+        "asset": "TOTAL",
+
+        "engine_hours": total_engine_hrs,
+
+        "pump_hours": total_pump_hrs,
+
+        "concrete_qty": total_concrete,
+
+        "fuel_qty": total_fuel,
+
+        "fuel_avg": round(total_avg, 2)
+    })
+
+    return data
