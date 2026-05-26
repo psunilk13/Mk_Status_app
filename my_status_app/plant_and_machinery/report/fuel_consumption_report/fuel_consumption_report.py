@@ -14,6 +14,9 @@ def execute(filters=None):
 
     conditions = ""
 
+	# if filters.get("asset_category"):
+ #        conditions += " AND mdl.asset_category = %(asset_category)s "
+	
     if filters.get("asset"):
         conditions += " AND mdl.asset = %(asset)s "
 
@@ -52,7 +55,13 @@ def execute(filters=None):
         "fieldname": "asset",
         "fieldtype": "Data",
         "width": 220
-    })
+    }
+				   # {
+       #  "label": "Asset Category",
+       #  "fieldname": "asset_category",
+       #  "fieldtype": "Link",
+       #  "width": 220}
+				  )
 
     date_list = []
 
@@ -100,6 +109,7 @@ def execute(filters=None):
     records = frappe.db.sql("""
 
     SELECT
+		
         a.asset_name,
         mdl.date,
         mdl.engine_hours,
