@@ -19,12 +19,12 @@ frappe.query_reports["Fuel Consumption Report"] = {
             fieldtype: "Date",
             reqd: 0
         },
-		{
-            fieldname: "asset_category",
-            label: "Asset Category",
-            fieldtype: "Link",
-            options: "Asset Category"
-        },
+		// {
+  //           fieldname: "asset_category",
+  //           label: "Asset Category",
+  //           fieldtype: "Link",
+  //           options: "Asset Category"
+  //       },
 		
         {
             fieldname: "asset",
