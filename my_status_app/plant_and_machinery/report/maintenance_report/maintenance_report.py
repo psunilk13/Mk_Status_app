@@ -34,7 +34,15 @@ def get_columns():
         {
             "label": "Asset",
             "fieldname": "asset_name",
-            "fieldtype": "Data",
+            "fieldtype": "link",
+            "options" : "Asset",
+            "width": 220
+        },
+        {
+            "label": "Asset Category",
+            "fieldname": "asset_category",
+            "fieldtype": "Link",
+            "options": "Asset Category",
             "width": 220
         },
 
@@ -137,6 +145,9 @@ def get_data(filters):
     if filters.get("asset"):
         conditions += " AND mm.asset = %(asset)s "
 
+    if filters.get("asset_category"):
+        conditions += " AND mm.asset_category = %(asset_category)s "
+
     if filters.get("item_code"):
         conditions += " AND mmi.item_code = %(item_code)s "
 
@@ -166,6 +177,7 @@ def get_data(filters):
             mm.date,
             a.asset_name,
             mm.asset,
+            mm.asset_category,
             mm.next_service_due,
             mm.next_lubricant_due,
 
@@ -222,6 +234,7 @@ def get_data(filters):
 
             WHERE
                 mm.asset = %s
+                AND mm.asset_category = %s
                 AND mmi.item_code = %s
                 AND mm.date < %s
 
@@ -232,6 +245,7 @@ def get_data(filters):
 
         """, (
             row.asset,
+            row.asset_category,
             row.item_code,
             row.date
         ), as_dict=True)
@@ -258,11 +272,13 @@ def get_data(filters):
 
                 WHERE
                     asset = %s
+                    AND asset_category =%s
                     AND date > %s
                     AND date <= %s
 
             """, (
                 row.asset,
+                row.asset_category,
                 previous_date,
                 row.date
             ), as_dict=True)
@@ -282,6 +298,8 @@ def get_data(filters):
             "date": row.date,
 
             "asset_name": row.asset_name,
+
+            "asset_category": row.asset_category,
 
             "engine_hrs": engine_hrs,
 
