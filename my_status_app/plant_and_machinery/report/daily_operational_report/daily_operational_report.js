@@ -24,6 +24,12 @@ frappe.query_reports["Daily Operational Report"] = {
             label: "Asset",
             fieldtype: "Link",
             options: "Asset"
+        },
+        {
+            fieldname: "asset_category",
+            label: "Asset Category",
+            fieldtype: "Link",
+            options: "Asset Category"
         }
     ]
 };
