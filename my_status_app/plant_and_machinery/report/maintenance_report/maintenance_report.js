@@ -25,6 +25,12 @@ frappe.query_reports["Maintenance Report"] = {
             fieldtype: "Link",
             options: "Asset"
         },
+        {
+            fieldname: "asset_category",
+            label: "Asset Category",
+            fieldtype: "Link",
+            options: "Asset Category"
+        },
 
         {
             fieldname: "item_code",
