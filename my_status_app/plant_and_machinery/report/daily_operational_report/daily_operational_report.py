@@ -39,6 +39,13 @@ def get_columns():
         },
 
         {
+            "label": "Asset Category",
+            "fieldname": "asset_category",
+            "fieldtype": "Data",
+            "width": 220
+        },
+
+        {
             "label": "Engine Start",
             "fieldname": "engine_start",
             "fieldtype": "Float",
@@ -86,6 +93,30 @@ def get_columns():
             "fieldtype": "Float",
             "width": 130
         },
+        {
+            "label": "Last Odometer Value",
+            "fieldname": "last_odometer_value",
+            "fieldtype": "Int",
+            "width" : 120
+        },
+        {
+            "label": "Current Odometer value",
+            "fieldname": "current_odometer_value",
+            "fieldtype": "Int",
+            "width" : 120
+        },
+        {
+            "label": "Distance Travelled",
+            "fieldname": "distance_travelled",
+            "fieldtype": "Int",
+            "width" : 120
+        },
+        {
+            "label": "Total Working Hours",
+            "fieldname": "total_working_hours",
+            "fieldtype": "Float",
+            "width" : 120
+        },
 
         {
             "label": "Fuel Qty",
@@ -126,10 +157,14 @@ def get_data(filters):
     if filters.get("to_date"):
         conditions += " AND mdl.date <= %(to_date)s "
 
+    if filters.get("asset_category"):
+        conditions += " AND mdl.asset_category = %(asset_category)s "
+
     records = frappe.db.sql("""
 
         SELECT
             a.asset_name,
+            mdl.asset_category,
             mdl.date,
             mdl.engine_start,
             mdl.engine_end,
@@ -138,6 +173,10 @@ def get_data(filters):
             mdl.pump_end,
             mdl.pump_hours,
             mdl.concrete_qty,
+            mdl.last_odometer_value,
+            mdl.current_odometer_value,
+            mdl.distance_travelled,
+            mdl.total_working_hours,
             mdl.fuel_qty,
             mdl.remarks
 
@@ -160,6 +199,8 @@ def get_data(filters):
     total_engine_hrs = 0
     total_pump_hrs = 0
     total_concrete = 0
+    total_distance_travelled = 0
+    total_total_working_hours = 0
     total_fuel = 0
 
     for i, row in enumerate(records, start=1):
@@ -177,6 +218,8 @@ def get_data(filters):
 
             "asset": row.asset_name,
 
+            "asset_category": row.asset_category,
+
             "engine_start": row.engine_start,
 
             "engine_end": row.engine_end,
@@ -191,6 +234,14 @@ def get_data(filters):
 
             "concrete_qty": row.concrete_qty,
 
+            "last_odometer_value": row.last_odometer_value,
+
+            "current_odometer_value" : row.current_odometer_value,
+
+            "distance_travelled" : row.distance_travelled,
+
+            "total_working_hours" : row.total_working_hours,
+
             "fuel_qty": row.fuel_qty,
 
             "fuel_avg": round(fuel_avg, 2),
@@ -201,6 +252,8 @@ def get_data(filters):
         total_engine_hrs += row.engine_hours or 0
         total_pump_hrs += row.pump_hours or 0
         total_concrete += row.concrete_qty or 0
+        total_distance_travelled += row.distance_travelled or 0
+        total_total_working_hours += row.total_working_hours or 0
         total_fuel += row.fuel_qty or 0
 
     total_avg = 0
@@ -217,6 +270,10 @@ def get_data(filters):
         "pump_hours": total_pump_hrs,
 
         "concrete_qty": total_concrete,
+
+        "distance_travelled": total_distance_travelled,
+
+        "total_working_hours": total_total_working_hours,
 
         "fuel_qty": total_fuel,
 
