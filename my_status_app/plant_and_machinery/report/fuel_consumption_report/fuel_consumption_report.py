@@ -14,11 +14,11 @@ def execute(filters=None):
 
     conditions = ""
 
-	# if filters.get("asset_category"):
- #        conditions += " AND mdl.asset_category = %(asset_category)s "
-	
     if filters.get("asset"):
         conditions += " AND mdl.asset = %(asset)s "
+
+    if filters.get("asset_category"):
+        conditions += " AND mdl.asset_category = %(asset_category)s "
 
     if filters.get("from_date"):
         conditions += " AND mdl.date >= %(from_date)s "
@@ -51,17 +51,18 @@ def execute(filters=None):
     # ------------------------
 
     columns.append({
-        "label": "Equipment",
-        "fieldname": "asset",
-        "fieldtype": "Data",
-        "width": 220
-    }
-				   # {
-       #  "label": "Asset Category",
-       #  "fieldname": "asset_category",
-       #  "fieldtype": "Link",
-       #  "width": 220}
-				  )
+    "label": "Equipment",
+    "fieldname": "asset",
+    "fieldtype": "Data",
+    "width": 220
+    })
+
+    columns.append({
+    "label": "Asset Category",
+    "fieldname": "asset_category",
+    "fieldtype": "Data",
+    "width": 220
+    })
 
     date_list = []
 
@@ -109,8 +110,8 @@ def execute(filters=None):
     records = frappe.db.sql("""
 
     SELECT
-		
         a.asset_name,
+        mdl.asset_category,
         mdl.date,
         mdl.engine_hours,
         mdl.fuel_qty
@@ -144,7 +145,11 @@ def execute(filters=None):
 
     for row in records:
 
-        asset = row.asset_name
+        asset_key = (
+           row.asset_name,
+           row.asset_category
+        )
+
         date_str = str(row.date)
 
         hrs = row.engine_hours or 0
@@ -157,10 +162,10 @@ def execute(filters=None):
         else:
             value = fuel
 
-        asset_map[asset][date_str] = value
+        asset_map[asset_key][date_str] = value
 
-        totals_map[asset]["hrs"] += hrs
-        totals_map[asset]["fuel"] += fuel
+        totals_map[asset_key]["hrs"] += hrs
+        totals_map[asset_key]["fuel"] += fuel
 
     # ------------------------
     # ROWS
@@ -169,17 +174,20 @@ def execute(filters=None):
     grand_hrs = 0
     grand_fuel = 0
 
-    for asset, values in asset_map.items():
+    for asset_key, values in asset_map.items():
+
+        asset_name, asset_category = asset_key
 
         row = {
-            "asset": asset
+        "asset": asset_name,
+        "asset_category": asset_category
         }
 
         for d in date_list:
             row[d] = values.get(d, 0)
 
-        total_hrs = totals_map[asset]["hrs"]
-        total_fuel = totals_map[asset]["fuel"]
+        total_hrs = totals_map[asset_key]["hrs"]
+        total_fuel = totals_map[asset_key]["fuel"]
 
         avg = 0
 
