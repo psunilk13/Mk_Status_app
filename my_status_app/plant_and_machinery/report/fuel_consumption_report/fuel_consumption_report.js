@@ -37,7 +37,7 @@ frappe.query_reports["Fuel Consumption Report"] = {
             label: "Report Type",
             fieldtype: "Select",
             options: "\nEngine Hours\nFuel Qty",
-            default: "Engine Hours",
+            default: "Fuel Qty",
             reqd: 1
         }
     ]
