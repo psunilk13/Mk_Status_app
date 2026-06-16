@@ -36,19 +36,22 @@
 // Copyright (c) 2026, shiva and contributors
 // For license information, please see license.txt
 
+// Copyright (c) 2026, shiva and contributors
+// For license information, please see license.txt
+
 frappe.query_reports["Daily Operational Report"] = {
 
     filters: [
 
         {
-            fieldname: "from_datetime",
-            label: "From Datetime",
-            fieldtype: "Datetime"
+            fieldname: "from_date",
+            label: "From Date",
+            fieldtype: "Date"
         },
         {
-            fieldname: "to_datetime",
-            label: "To Datetime",
-            fieldtype: "Datetime"
+            fieldname: "to_date",
+            label: "To Date",
+            fieldtype: "Date"
         },
 
         {
@@ -66,3 +69,4 @@ frappe.query_reports["Daily Operational Report"] = {
         }
     ]
 };
+
