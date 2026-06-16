@@ -28,12 +28,25 @@
 #             "label": "Date",
 #             "fieldname": "date",
 #             "fieldtype": "Date",
-#             "width": 100
+#             "width": 180
 #         },
 
 #         {
 #             "label": "Equipment",
 #             "fieldname": "asset",
+#             "fieldtype": "link",
+#             "options" :  "Asset",
+#             "width": 220
+#         },
+#         {
+#             "label": "Model",
+#             "fieldname": "model",
+#             "fieldtype": "Data",
+#             "width": 220
+#         },
+#         {
+#             "label": "Make",
+#             "fieldname": "make",
 #             "fieldtype": "Data",
 #             "width": 220
 #         },
@@ -93,30 +106,6 @@
 #             "fieldtype": "Float",
 #             "width": 130
 #         },
-#         {
-#             "label": "Last Odometer Value",
-#             "fieldname": "last_odometer_value",
-#             "fieldtype": "Int",
-#             "width" : 120
-#         },
-#         {
-#             "label": "Current Odometer value",
-#             "fieldname": "current_odometer_value",
-#             "fieldtype": "Int",
-#             "width" : 120
-#         },
-#         {
-#             "label": "Distance Travelled",
-#             "fieldname": "distance_travelled",
-#             "fieldtype": "Int",
-#             "width" : 120
-#         },
-#         {
-#             "label": "Total Working Hours",
-#             "fieldname": "total_working_hours",
-#             "fieldtype": "Float",
-#             "width" : 120
-#         },
 
 #         {
 #             "label": "Fuel Qty",
@@ -124,6 +113,19 @@
 #             "fieldtype": "Float",
 #             "width": 120
 #         },
+#         {
+#             "label": "Rate",
+#             "fieldname": "rate",
+#             "fieldtype": "Currency",
+#             "width": 120
+#         },
+#         {
+#             "label": "Amount",
+#             "fieldname": "amount",
+#             "fieldtype": "Currency",
+#             "width": 120
+#         },
+
 
 #         {
 #             "label": "Fuel Avg/Hr",
@@ -160,10 +162,14 @@
 #     if filters.get("asset_category"):
 #         conditions += " AND mdl.asset_category = %(asset_category)s "
 
+    
+
 #     records = frappe.db.sql("""
 
 #         SELECT
 #             a.asset_name,
+#             mdl.model,
+#             mdl.make,
 #             mdl.asset_category,
 #             mdl.date,
 #             mdl.engine_start,
@@ -173,10 +179,8 @@
 #             mdl.pump_end,
 #             mdl.pump_hours,
 #             mdl.concrete_qty,
-#             mdl.last_odometer_value,
-#             mdl.current_odometer_value,
-#             mdl.distance_travelled,
-#             mdl.total_working_hours,
+#             mdl.rate,
+#             mdl.amount,
 #             mdl.fuel_qty,
 #             mdl.remarks
 
@@ -218,6 +222,10 @@
 
 #             "asset": row.asset_name,
 
+#             "model": row.model,
+
+#             "make": row.make,
+
 #             "asset_category": row.asset_category,
 
 #             "engine_start": row.engine_start,
@@ -234,13 +242,17 @@
 
 #             "concrete_qty": row.concrete_qty,
 
-#             "last_odometer_value": row.last_odometer_value,
+#            # "last_odometer_value": row.last_odometer_value,
 
-#             "current_odometer_value" : row.current_odometer_value,
+#            # "current_odometer_value" : row.current_odometer_value,
 
-#             "distance_travelled" : row.distance_travelled,
+#            # "distance_travelled" : row.distance_travelled,
 
-#             "total_working_hours" : row.total_working_hours,
+#            # "total_working_hours" : row.total_working_hours,
+
+#             "rate":row.rate,
+
+#             "amount": row.amount,
 
 #             "fuel_qty": row.fuel_qty,
 
@@ -281,7 +293,6 @@
 #     })
 
 #     return data
-
 # Copyright (c) 2026, shiva and contributors
 # For license information, please see license.txt
 
@@ -309,22 +320,21 @@ def get_columns():
         },
 
         {
-            "label": "Date Time",
+            "label": "Date",
             "fieldname": "date",
-            "fieldtype": "Datetime",
-            "width": 180
+            "fieldtype": "Date",
+            "width": 100
+        },
+        {
+            "label": "Time",
+            "fieldname": "time",
+            "fieldtype": "Time",
+            "width": 100
         },
 
         {
-            "label": "Equipment",
+            "label": "Asset",
             "fieldname": "asset",
-            "fieldtype": "link",
-            "options" :  "Asset",
-            "width": 220
-        },
-        {
-            "label": "Model",
-            "fieldname": "model",
             "fieldtype": "Data",
             "width": 220
         },
@@ -334,13 +344,13 @@ def get_columns():
             "fieldtype": "Data",
             "width": 220
         },
-
         {
-            "label": "Asset Category",
-            "fieldname": "asset_category",
+            "label": "Model",
+            "fieldname": "model",
             "fieldtype": "Data",
             "width": 220
         },
+
 
         {
             "label": "Engine Start",
@@ -398,18 +408,24 @@ def get_columns():
             "width": 120
         },
         {
+            "label":"HSN Code",
+            "field name":"hsn_code",
+            "fieldtype": "Data",
+            "width":120
+        },
+        {
             "label": "Rate",
             "fieldname": "rate",
             "fieldtype": "Currency",
             "width": 120
         },
+        
         {
             "label": "Amount",
             "fieldname": "amount",
             "fieldtype": "Currency",
             "width": 120
         },
-
 
         {
             "label": "Fuel Avg/Hr",
@@ -437,25 +453,20 @@ def get_data(filters):
     if filters.get("asset"):
         conditions += " AND mdl.asset = %(asset)s "
 
-    if filters.get("from_datetime"):
-        conditions += " AND mdl.date >= %(from_datetime)s "
+    if filters.get("from_date"):
+        conditions += " AND mdl.date >= %(from_date)s "
 
-    if filters.get("to_datetime"):
-        conditions += " AND mdl.date <= %(to_datetime)s "
-
-    if filters.get("asset_category"):
-        conditions += " AND mdl.asset_category = %(asset_category)s "
-
-    
+    if filters.get("to_date"):
+        conditions += " AND mdl.date <= %(to_date)s "
 
     records = frappe.db.sql("""
 
         SELECT
             a.asset_name,
-            mdl.model,
-            mdl.make,
-            mdl.asset_category,
             mdl.date,
+            mdl.time,
+            mdl.make,
+            mdl.model,
             mdl.engine_start,
             mdl.engine_end,
             mdl.engine_hours,
@@ -463,9 +474,10 @@ def get_data(filters):
             mdl.pump_end,
             mdl.pump_hours,
             mdl.concrete_qty,
+            mdl.fuel_qty,
+            mdl.hsn_code,
             mdl.rate,
             mdl.amount,
-            mdl.fuel_qty,
             mdl.remarks
 
         FROM `tabMachine Daily Log` mdl
@@ -487,9 +499,8 @@ def get_data(filters):
     total_engine_hrs = 0
     total_pump_hrs = 0
     total_concrete = 0
-    total_distance_travelled = 0
-    total_total_working_hours = 0
     total_fuel = 0
+    total_amount = 0
 
     for i, row in enumerate(records, start=1):
 
@@ -504,13 +515,13 @@ def get_data(filters):
 
             "date": row.date,
 
-            "asset": row.asset_name,
+            "time": row.time,
 
-            "model": row.model,
+            "asset": row.asset_name,
 
             "make": row.make,
 
-            "asset_category": row.asset_category,
+            "model": row.model,
 
             "engine_start": row.engine_start,
 
@@ -526,19 +537,13 @@ def get_data(filters):
 
             "concrete_qty": row.concrete_qty,
 
-           # "last_odometer_value": row.last_odometer_value,
+            "fuel_qty": row.fuel_qty,
 
-           # "current_odometer_value" : row.current_odometer_value,
+            "hsn_code":row.hsn_code,
 
-           # "distance_travelled" : row.distance_travelled,
-
-           # "total_working_hours" : row.total_working_hours,
-
-            "rate":row.rate,
+            "rate": row.rate,
 
             "amount": row.amount,
-
-            "fuel_qty": row.fuel_qty,
 
             "fuel_avg": round(fuel_avg, 2),
 
@@ -548,9 +553,8 @@ def get_data(filters):
         total_engine_hrs += row.engine_hours or 0
         total_pump_hrs += row.pump_hours or 0
         total_concrete += row.concrete_qty or 0
-        total_distance_travelled += row.distance_travelled or 0
-        total_total_working_hours += row.total_working_hours or 0
         total_fuel += row.fuel_qty or 0
+        total_amount+= row.amount or 0
 
     total_avg = 0
 
@@ -567,11 +571,9 @@ def get_data(filters):
 
         "concrete_qty": total_concrete,
 
-        "distance_travelled": total_distance_travelled,
-
-        "total_working_hours": total_total_working_hours,
-
         "fuel_qty": total_fuel,
+
+        "amount": total_amount,
 
         "fuel_avg": round(total_avg, 2)
     })
