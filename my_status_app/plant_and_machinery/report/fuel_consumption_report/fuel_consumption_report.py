@@ -58,6 +58,20 @@ def execute(filters=None):
     })
 
     columns.append({
+    "label": "Make",
+    "fieldname": "make",
+    "fieldtype": "Data",
+    "width": 220
+    })
+
+    columns.append({
+    "label": "Model",
+    "fieldname": "model",
+    "fieldtype": "Data",
+    "width": 220
+    })
+
+    columns.append({
     "label": "Asset Category",
     "fieldname": "asset_category",
     "fieldtype": "Data",
@@ -111,6 +125,8 @@ def execute(filters=None):
 
     SELECT
         a.asset_name,
+        mdl.make,
+        mdl.model,
         mdl.asset_category,
         mdl.date,
         mdl.engine_hours,
@@ -147,6 +163,8 @@ def execute(filters=None):
 
         asset_key = (
            row.asset_name,
+           row.make,
+           row.model,
            row.asset_category
         )
 
@@ -176,10 +194,12 @@ def execute(filters=None):
 
     for asset_key, values in asset_map.items():
 
-        asset_name, asset_category = asset_key
+        asset_name, make, model, asset_category = asset_key
 
         row = {
         "asset": asset_name,
+        "make":make,
+        "model":model,
         "asset_category": asset_category
         }
 
