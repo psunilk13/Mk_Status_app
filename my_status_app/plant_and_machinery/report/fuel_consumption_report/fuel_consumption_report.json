@@ -22,6 +22,9 @@
  "roles": [
   {
    "role": "System Manager"
+  },
+  {
+   "role":"Plant & Machinery Manager"
   }
  ],
  "timeout": 0
