@@ -553,6 +553,7 @@ def get_data(filters):
         total_engine_hrs += row.engine_hours or 0
         total_pump_hrs += row.pump_hours or 0
         total_concrete += row.concrete_qty or 0
+		
         total_fuel += row.fuel_qty or 0
         total_amount+= row.amount or 0
 
