@@ -1,0 +1,17 @@
+{
+ "doctype": "Report",
+ "module": "Plant and Machinery",
+ "name": "Daily Operational Report V2",
+ "report_name": "Daily Operational Report V2",
+ "ref_doctype": "Machine Daily Log",
+ "report_type": "Script Report",
+ "is_standard": "Yes",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Plant & Machinery Manager"
+  }
+ ]
+}
