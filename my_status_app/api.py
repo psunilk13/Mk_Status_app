@@ -1,6 +1,28 @@
 import frappe
 
 @frappe.whitelist()
+def get_columns():
+    return [
+        {"label": "SL.NO", "fieldname": "sr_no", "fieldtype": "Int", "width": 70},
+        {"label": "Date", "fieldname": "date", "fieldtype": "Date", "width": 100},
+        {"label": "Time", "fieldname": "time", "fieldtype": "Time", "width": 100},
+        {"label": "Asset", "fieldname": "asset", "fieldtype": "Data", "width": 220},
+        {"label": "Make", "fieldname": "make", "fieldtype": "Data", "width": 220},
+        {"label": "Model", "fieldname": "model", "fieldtype": "Data", "width": 220},
+        {"label": "Engine Start", "fieldname": "engine_start", "fieldtype": "Float", "width": 120},
+        {"label": "Engine End", "fieldname": "engine_end", "fieldtype": "Float", "width": 120},
+        {"label": "Engine Hrs", "fieldname": "engine_hours", "fieldtype": "Float", "width": 120},
+        {"label": "Pump Start", "fieldname": "pump_start", "fieldtype": "Float", "width": 120},
+        {"label": "Pump End", "fieldname": "pump_end", "fieldtype": "Float", "width": 120},
+        {"label": "Pump Hrs", "fieldname": "pump_hours", "fieldtype": "Float", "width": 120},
+        {"label": "Concrete Qty", "fieldname": "concrete_qty", "fieldtype": "Float", "width": 130},
+        {"label": "Fuel Qty", "fieldname": "fuel_qty", "fieldtype": "Float", "width": 120},
+        {"label": "HSN Code", "fieldname": "hsn_code", "fieldtype": "Data", "width": 120},
+        {"label": "Rate", "fieldname": "rate", "fieldtype": "Currency", "width": 120},
+        {"label": "Amount", "fieldname": "amount", "fieldtype": "Currency", "width": 120},
+        {"label": "Fuel Avg/Hr", "fieldname": "fuel_avg", "fieldtype": "Float", "width": 130},
+        {"label": "Remarks", "fieldname": "remarks", "fieldtype": "Data", "width": 200},
+    ]
 def get_daily_operational_report(filters=None):
 
     if isinstance(filters, str):
